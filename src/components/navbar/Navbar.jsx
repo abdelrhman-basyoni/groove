@@ -606,7 +606,7 @@ const Navbar = () => {
                 alt="user avatar"
               />
               <div className="user-info ps-3">
-                <p className="user-name mb-0">Aman</p>
+                <p className="user-name mb-0">Groove</p>
                 <p className="designattion mb-0">admin</p>
               </div>
             </a>

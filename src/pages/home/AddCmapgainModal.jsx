@@ -10,7 +10,7 @@ const AddCmapgainModal = ({setModalOpened,fetchData}) => {
     const [form] = Form.useForm();
     const  schema = Yup.object().shape({
         name: Yup.string()
-          .required('this field is required required')
+          .required('this field is required')
 
       });
     
@@ -77,7 +77,7 @@ const AddCmapgainModal = ({setModalOpened,fetchData}) => {
             disabled={true}
             errorMsg={errors?.userName?.message}
             validateStatus={errors?.userName ? 'error' : ''}
-            prefix={<EditOutlined />}
+            // prefix={<EditOutlined />}
             control={control}
           />
         </div>
@@ -91,7 +91,7 @@ const AddCmapgainModal = ({setModalOpened,fetchData}) => {
             defaultValue='Traffic'
             errorMsg={errors?.userName?.message}
             validateStatus={errors?.userName ? 'error' : ''}
-            prefix={<EditOutlined />}
+            // prefix={<EditOutlined />}
             control={control}
           />
         </div>
@@ -106,7 +106,7 @@ const AddCmapgainModal = ({setModalOpened,fetchData}) => {
          
             errorMsg={errors?.userName?.message}
             validateStatus={errors?.userName ? 'error' : ''}
-            prefix={<EditOutlined />}
+            // prefix={<EditOutlined />}
             control={control}
           />
         </div>

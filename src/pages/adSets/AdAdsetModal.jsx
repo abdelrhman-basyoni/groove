@@ -117,9 +117,9 @@ const AdAdsetModal = ({ campgainId, setModalOpened, fetchData }) => {
 
                 },
                 publisher_platforms: ['facebook', 'instagram'],
-                facebook_positions:asset,
-                instagram_positions:asset.map(element =>{
-                    if(element === 'feed'){
+                facebook_positions: asset,
+                instagram_positions: asset.map(element => {
+                    if (element === 'feed') {
                         return 'profile_feed'
                     }
                     return element
@@ -132,12 +132,12 @@ const AdAdsetModal = ({ campgainId, setModalOpened, fetchData }) => {
         if (!selectedGender && selected.length == 0 && selectedCountries.length == 0 && selectedCities.length == 0) {
             displayError({ title: 'validation Error', message: 'Please select audience' })
             console.log("raise error here")
-        } else if (asset.length == 0){
+        } else if (asset.length == 0) {
             displayError({ title: 'validation Error', message: 'Please select at least 1 asset' })
         }
         else {
             const response = await createAdsets(body);
-            if(response){
+            if (response) {
                 displaySuccess({ title: 'success', message: 'Ad set created' })
             }
             console.log({ response })
@@ -249,7 +249,7 @@ const AdAdsetModal = ({ campgainId, setModalOpened, fetchData }) => {
                     // onOk={'sd'}
                     />
                 </div>
-                ---------------------------------------- audience ----------------------------------------------------------------
+                ------------------------------------------------------------------------------------ audience --------------------------------------------------------------------------------
 
                 <p>locations</p>
                 <Select
@@ -450,7 +450,7 @@ const AdAdsetModal = ({ campgainId, setModalOpened, fetchData }) => {
                     className="add-Category-form"
                 />
 
-                ---------------------------------------- placment ----------------------------------------------------------------
+                ------------------------------------------------------------------------------------ placment --------------------------------------------------------------------------------
 
                 <div className="form-field-wrapper">
                     <AntdTextField
@@ -506,11 +506,11 @@ const AdAdsetModal = ({ campgainId, setModalOpened, fetchData }) => {
                     showSearch={true}
                     filterOption={false}
                     onSelect={(value, test) => {
-                        if(value === 1){ // feed
-                            setAsset(prev => [...prev,'feed'])
+                        if (value === 1) { // feed
+                            setAsset(prev => [...prev, 'feed'])
                             // setInstagram(prev => [...prev,'feed'])
-                        } else if (value === 2){
-                            setAsset(prev => [...prev,'feed'])
+                        } else if (value === 2) {
+                            setAsset(prev => [...prev, 'feed'])
                             // setInstagram(prev => [...prev,'story'])
                         }
                     }}

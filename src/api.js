@@ -44,12 +44,15 @@ export function displaySuccess({title,message}) {
     }
   });
 };
-// export displayError;
-export const convertRate = 25;
-const access_token = 'EAASOreMwe2wBAMehK9lHsOqiraZC3Sq4CkTNl8IdJZCHbLaWZBu8HpXWhrbo5vtTfWBonVEtkMYxOiTqZBiqEPJPIAx3nI4Qd8RTG7HrfOu9btVxaq5TIQdNfdAJG5RDzZCSMTETTzIZCzvhfR7sBiZAhM5UZA50TiaZCyI6fUrdbLPamcenR1Du1HegOntPs4tp9JXmgRLnv2FNly1VSZAGXqAaFrUGoGypvYLfZB4XZC7aMfhKeYfAtZClb';
-const app_secret = 'b6886e70a4a828673f2249d1973a7f4f';
-const app_id = '1282777398934380';
-const addAccount = `act_362100131`; 
+/**
+ * this is not secure by any means
+ * in real enviroment the access token account id  should be hidden in the backend server and
+ * this is for demonstration purposes only
+ */
+export const convertRate = 25; // this conversion rate to handle Egp to dollar , set it to 1 if u want it to be according to your add acount currency 
+const access_token = ''; //add the account token
+const addAccountId = 'accountId' // addd ur account id
+const addAccount = `act_${addAccountId}`;  // add accoun will be like <act_${accountId}>
 const fbUrl = 'https://graph.facebook.com/v15.0'
 export async function postToFacebook(path, body, config) {
   try {

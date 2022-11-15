@@ -91,34 +91,33 @@ const Home = () => {
       <div>
       <button onClick={e  =>{ e.preventDefault(); setModalOpened(true)}} type="button" class="btn btn-dark px-5 radius-30">Add Campgain</button>
       </div>
-      <Modal
-          className="add-User-modal"
-          width="90%"
-          style={{ maxWidth: '900px' }}
-          title={'New Campgain'}
-          visible={ModalOpened}
-          onOk={() => {
-            setModalOpened(false);
-            // setSelectedServId('');
-            // setSelected(null);
-          }}
-          onCancel={() => {
-            setModalOpened(false);
-            // setSelectedServId('');
-            // setSelected(null);
-          }}
-          footer={false}>
-            <AddCmapgainModal
-            setModalOpened={setModalOpened}
-            fetchData={fetchData}
-             />
-          {/* <AddCardsForm
-            setCount={setCount}
-            setModalOpened={setModalOpened}
-            selected={selected}
-            selectedServId={selectedServId}
-          /> */}
-        </Modal>
+      {
+        ModalOpened?
+
+        <Modal
+        className="add-User-modal"
+        width="90%"
+        style={{ maxWidth: '900px' }}
+        title={'New Campgain'}
+        visible={ModalOpened}
+        onOk={() => {
+          setModalOpened(false);
+
+        }}
+        onCancel={() => {
+          setModalOpened(false);
+
+        }}
+        footer={false}>
+          <AddCmapgainModal
+          setModalOpened={setModalOpened}
+          fetchData={fetchData}
+           />
+   
+      </Modal>
+        : null
+      }
+
       <DataTable columns={columns} data={formatedData} />
     </div>
   );
