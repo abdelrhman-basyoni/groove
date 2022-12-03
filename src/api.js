@@ -50,9 +50,12 @@ export function displaySuccess({title,message}) {
  * this is for demonstration purposes only
  */
 export const convertRate = 25; // this conversion rate to handle Egp to dollar , set it to 1 if u want it to be according to your add acount currency 
-const access_token = ''; //add the account token
-const addAccountId = 'accountId' // addd ur account id
-const addAccount = `act_${addAccountId}`;  // add accoun will be like <act_${accountId}>
+const access_token = 'EAASOreMwe2wBAAIk87ekxReAsp8pK2B481Gb8RRukQVZAj1vwpcZBaY788NzWzGJGb8iLq0pemoyL6Se7DolFmaDAvAYnVOttz77qR2qCNgZATZAXzAl7x0ykoDQuiU037QGFwXroh0cx1cyVN7qXrAkNHTi7zDh1th5d0vV2WsMOlnkhndirYiKIDRmsreEh7EiA6vUwq62ZAr5ERF1WeYSsFZCcFYhZBvWsbZAW3sZAKuXZCfeR2JCmJ'; //add the account token
+// const addAccountId = 'accountId' // addd ur account id
+// const addAccount = `act_${addAccountId}`;  // add accoun will be like <act_${accountId}>
+const app_secret = 'b6886e70a4a828673f2249d1973a7f4f';
+const app_id = '1282777398934380';
+const addAccount = `act_362100131`; 
 const fbUrl = 'https://graph.facebook.com/v15.0'
 export async function postToFacebook(path, body, config) {
   try {
@@ -231,7 +234,7 @@ export async function createAdsets({campgainId,name,optimizationGoal,dailyBudget
     }, {
       params: {
         name: name ,
-        billing_event:'LINK_CLICKS',
+        billing_event:'IMPRESSIONS',
         campaign_id:campgainId,
         access_token: access_token,
         status:'PAUSED',
@@ -259,8 +262,8 @@ export async function getTargeting(search) {
 
     const data = await getFromFacebook(`/search`, {
       params: {
-        q: search,
-        type:search ?'adinterest' :'adTargetingCategory',
+        q: search ||'*',
+        type:'adinterest',
         access_token: access_token,
       }
     })
@@ -307,6 +310,106 @@ export async function getLanguages(search) {
     return null
   }
 
+}
+
+export async function getPageID(url){
+  try {
+
+
+    const data = await getFromFacebook(``, {
+      params: {
+        id:url,
+        // type:'adinterest',
+        access_token: access_token,
+      }
+    })
+    console.log({data})
+    return data;
+  
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+
+}
+
+
+export async function uploadVideo({path,formData}){
+  try {
+    const response = await axios.post(path, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
+
+
+export async function uploadToFB(pageId,file_url){
+  try {
+    const response = await postToFacebook(`/${addAccount}/advideos`,{},{
+      params:{
+        file_url,
+        name:"test",
+        access_token: access_token,
+
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
+
+export async function createAdCreative({pageId,videoId,adCreativeName}){
+  try {
+    const response = await postToFacebook(`/${addAccount}/adcreatives`,{},{
+      params:{
+        name:adCreativeName,
+        object_story_spec:{
+          video_data:{
+            video_id:videoId,
+            image_url:'https://cdn.pixabay.com/photo/2014/06/03/19/38/board-361516__340.jpg'
+          },
+          video_id:videoId,
+          page_id:pageId,
+        },
+
+        access_token: access_token,
+
+      }
+    });
+    return response;
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
+export async function createAd({pageId,addSetId,creativeId,adName}){
+  try {
+    const response = await postToFacebook(`/${addAccount}/ads`,{},{
+      params:{
+        name:adName,
+        adset_id:addSetId,
+        creative:{
+          creative_id:creativeId
+        },
+        status:"PAUSED",
+        page_id:pageId,
+        access_token: access_token,
+
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error)
+    return null
+  }
 }
 
 

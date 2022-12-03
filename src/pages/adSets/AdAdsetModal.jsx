@@ -86,7 +86,7 @@ const AdAdsetModal = ({ campgainId, setModalOpened, fetchData }) => {
     });
 
     setValue('Traffic', "Website");
-    setValue('Optimization', "LINK_CLICKS");
+    setValue('Optimization', "IMPRESSIONS"); 
     setValue('Budget', 3);
 
     setValue('Placment', 'Manual');
