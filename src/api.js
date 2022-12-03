@@ -50,7 +50,7 @@ export function displaySuccess({title,message}) {
  * this is for demonstration purposes only
  */
 export const convertRate = 25; // this conversion rate to handle Egp to dollar , set it to 1 if u want it to be according to your add acount currency 
-const access_token = 'EAASOreMwe2wBAAIk87ekxReAsp8pK2B481Gb8RRukQVZAj1vwpcZBaY788NzWzGJGb8iLq0pemoyL6Se7DolFmaDAvAYnVOttz77qR2qCNgZATZAXzAl7x0ykoDQuiU037QGFwXroh0cx1cyVN7qXrAkNHTi7zDh1th5d0vV2WsMOlnkhndirYiKIDRmsreEh7EiA6vUwq62ZAr5ERF1WeYSsFZCcFYhZBvWsbZAW3sZAKuXZCfeR2JCmJ'; //add the account token
+const access_token = 'EAASOreMwe2wBAB6i9NXQRsOmPNCjQldWL8eS3IPKGxQWhWPuQ9Xcc8A0inztWhNjOHyOddZAjr3rjEoUr2vYL5vQFHOLJ3gACthgk478lZCY8qKZBUlaSxG1LGJxqTKR64y3aobqVg3hKrfkKlZBSgXh3dsgFnH5eX16G75boKni9EyT1zfrwHIhXzF6ZClfZCZACKB21yfo57ZArVVvtbDViLK8EdsStJRrOpZArdI0uJtUX0rVOdiZA8'; //add the account token
 // const addAccountId = 'accountId' // addd ur account id
 // const addAccount = `act_${addAccountId}`;  // add accoun will be like <act_${accountId}>
 const app_secret = 'b6886e70a4a828673f2249d1973a7f4f';
@@ -366,7 +366,7 @@ export async function uploadToFB(pageId,file_url){
   }
 }
 
-export async function createAdCreative({pageId,videoId,adCreativeName}){
+export async function createAdCreative({pageId,videoId,adCreativeName, link, message,imageUrl}){
   try {
     const response = await postToFacebook(`/${addAccount}/adcreatives`,{},{
       params:{
@@ -374,8 +374,13 @@ export async function createAdCreative({pageId,videoId,adCreativeName}){
         object_story_spec:{
           video_data:{
             video_id:videoId,
-            image_url:'https://cdn.pixabay.com/photo/2014/06/03/19/38/board-361516__340.jpg'
+            image_url:imageUrl
           },
+          link_data:{
+            link:link,
+            image_url:imageUrl,
+            message:message
+          },  
           video_id:videoId,
           page_id:pageId,
         },
