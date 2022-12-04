@@ -80,7 +80,7 @@ const Ads = () => {
   return (
     <div>
        <div>
-        <button onClick={e => { e.preventDefault(); setModalOpened(true) }} type="button" class="btn btn-dark px-5 radius-30">New Adset</button>
+        <button onClick={e => { e.preventDefault(); setModalOpened(true) }} type="button" class="btn btn-dark px-5 radius-30">New AD</button>
       </div>
       {
         ModalOpened?
@@ -104,6 +104,7 @@ const Ads = () => {
           <NewAddModal
           setModalOpened={setModalOpened}
           adsetsId={adsetsId}
+          fetchData={fetchData}
           // fetchData={fetchData}
           // campgainId={campgainId}
            />

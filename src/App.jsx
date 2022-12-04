@@ -30,6 +30,7 @@ import {getPageID} from './api'
               
                 <Route path='/*' element={<Applayout />} >
                   <Route path="campgains" element={<Home />} />
+                  <Route path="" element={<Home />} />
                   <Route path="campgains/:campgainId" element={<Adset />} />
                   <Route path="adsets/:adsetsId" element={<Ads />} />
                   {/* <Route path="ads/:adsetsId" element={<Adset />} /> */}

@@ -5,15 +5,17 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import AntdTextField from '../../components/antd/AntdTextField'
 import { EditOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 import * as Yup from 'yup';
-import { displayError, getPageID, uploadVideo, uploadToFB, createAdCreative, createAd, displaySuccess } from '../../api'
+import { displayError, getPageID, getInstagramID, uploadVideo, uploadToFB, createAdCreative, createAd, displaySuccess } from '../../api'
 
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
-const NewAddModal = ({ adsetsId,setModalOpened }) => {
+const NewAddModal = ({ adsetsId, setModalOpened,fetchData }) => {
 
     const [addBody, setAddBody] = useState({})
+    const [adCreativeBody, setAdCreativeBody] = useState({})
 
     const [form] = Form.useForm();
+    const [form2] = Form.useForm();
     const schema = Yup.object().shape({
         pageUrl: Yup.string()
             .required('this field is required')
@@ -75,7 +77,7 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
             return false;
         },
         thumbnail,
-        listType:'picture'
+        listType: 'picture'
     };
 
     const onSubmit = async (data) => {
@@ -92,6 +94,14 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
         await fetchData()
 
     };
+    const getInstagramDetails = async (data) => {
+        if (!page?.id) {
+            displayError({ title: 'invalid request', message: 'enter page url first' });
+            return;
+        }
+        const res = await getInstagramID(page.id)
+        console.log({ res })
+    }
 
 
     const getPageDetails = async (data) => {
@@ -109,7 +119,7 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
          * upload the files to the backendserver
          * create the ad creative
          */
-        setUploading(true)
+
         if (!page?.id) {
             displayError({ title: 'invalid request', message: 'enter page url first' });
             return;
@@ -118,6 +128,11 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
             displayError({ title: 'invalid request', message: 'video and thumbnail must be uploaded' });
             return;
         }
+        if (!adCreativeBody.primaryText || !adCreativeBody.headLine || !adCreativeBody.destination) {
+            displayError({ title: 'invalid request', message: 'u must enter primary text, headline and destination' });
+            return;
+        }
+        setUploading(true)
         const formData = new FormData();
         formData.append('file', file)
 
@@ -125,45 +140,46 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
         thumbnailFormData.append('file', thumbnail)
 
         /** upload to backendServer */
-        // const [fileRes, imageRes] = await Promise.all([
-        //     uploadVideo({path:'https://winch.sheltertest.ml/file/upload',formData}),
-        //     uploadVideo({path:'https://winch.sheltertest.ml/file/upload',thumbnailFormData}),
-        // ])
-        // if(!fileRes || !imageRes) {
-        //     return;
-        // }
-        // setFileUrl(fileRes.data.link)
-        // setThumbnailUrl(imageRes.data.link)
-        const imageUrl = 'https://cdn.pixabay.com/photo/2014/06/03/19/38/board-361516__340.jpg'
-        setFileUrl('https://winch.sheltertest.ml/file/videoplayback-6342.mp4')
+        const [fileRes, imageRes] = await Promise.all([
+            uploadVideo({path:'https://winch.sheltertest.ml/file/upload',formData}),
+            uploadVideo({path:'https://winch.sheltertest.ml/file/upload',formData:thumbnailFormData}),
+        ])
+        if(!fileRes || !imageRes) {
+            displayError({ title: 'invalid request', message: 'error happened while uploading'})
+            setUploading(false)
+            return;
+        }
+        setFileUrl(fileRes.data.link)
+        setThumbnailUrl(imageRes.data.link)
+        const imageUrl = imageRes.data.link
+        const fileUrl = fileRes.data.link
         setThumbnailUrl(imageUrl)
 
         /** upload the video*/
-        const fbres = await uploadToFB(page.id, 'https://winch.sheltertest.ml/file/videoplayback-6342.mp4')
+        const fbres = await uploadToFB(page.id, fileUrl)
+        if (!fbres.id) {
 
+        }
         setvideoId(fbres.id)
         /** addcreative then ad */
         const adCreativeRes = await createAdCreative({
             pageId: page.id,
             videoId: fbres.id,
             adCreativeName: 'testcreative',
-            link: 'https://www.youtube.com/',
-            message: "listen now",
+            primaryText: adCreativeBody.primaryText,
+            headLine: adCreativeBody.headLine,
+            destination: adCreativeBody.destination,
             imageUrl
         })
-        setCreativeId(adCreativeRes.id)
-
-        // const adres = await createAd({
-        //     pageId: page.id,
-        //     addSetId: adsetsId,
-        //     creativeId: adCreativeRes.id,
-        //     adName: 'testad'
-
-        // })
-
+        if(adCreativeRes?.id){
+            setCreativeId(adCreativeRes.id)
+        }
         setUploading(false)
-        //    }
-        //    console.log({res})
+
+
+
+
+
 
 
 
@@ -171,20 +187,24 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
 
 
     const createAdHandler = async () => {
-        if(!page || !creativeId){
-            displayError({ title: 'invalid request', message: 'missing page id or ad ad creative'})
+        if (!page || !creativeId) {
+            displayError({ title: 'invalid request', message: 'missing page id or ad ad creative' })
         }
-        console.log({addBody})
+        console.log({ addBody })
         const adRes = await createAd({
-            pageId:page.id,
-            addSetId:adsetsId,
-            creativeId : creativeId,
-            adName:addBody.headline
+            pageId: page.id,
+            addSetId: adsetsId,
+            creativeId: creativeId,
+            adName: addBody.name,
+            pixelId: addBody?.pixelId,
+            appEvents: addBody?.appEvents,
 
 
         })
-        if(adRes != null){
-            displaySuccess({title:'success',message:"ad created successfully"})
+        console.log({adRes})
+        if (adRes != null) {
+            displaySuccess({ title: 'success', message: "ad created successfully" });
+            fetchData()
             setModalOpened(false);
         }
 
@@ -195,61 +215,137 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
     return (
         <div className="container">
             <div className="row">
-                <Form form={form} layout="vertical" onFinish={handleSubmit(getPageDetails)} >
-                    <div className="form-field-wrapper">
-                        <AntdTextField
-                            name="pageUrl"
-                            type="text"
-                            placeholder={'page url'}
-                            label={'pageUrl'}
-                            errorMsg={errors?.name?.message}
-                            validateStatus={errors?.name ? 'error' : ''}
-                            prefix={<EditOutlined />}
-                            control={control}
+                <div className="col">
+                    <Form form={form} layout="vertical" onFinish={handleSubmit(getPageDetails)} >
+                        <div className="form-field-wrapper">
+                            <AntdTextField
+                                name="pageUrl"
+                                type="text"
+                                placeholder={'page url'}
+                                label={'pageUrl'}
+                                errorMsg={errors?.name?.message}
+                                validateStatus={errors?.name ? 'error' : ''}
+                                prefix={<EditOutlined />}
+                                control={control}
 
-                        />
-                        <AntdTextField
-                            name="pageName"
-                            type="text"
-                            placeholder={'Page'}
-                            label={'Page'}
-                            disabled={true}
-                            errorMsg={errors?.pageName?.message}
-                            validateStatus={errors?.pageName ? 'error' : ''}
-                            // prefix={<EditOutlined />}
-                            control={control}
-                        />
-                        <Button
-                            className="submit-btn"
-                            htmlType="submit"
-                            type="primary"
-                            icon={<SendOutlined />}
-                            loading={isSubmitting}>
-                            {'fetch'}
-                        </Button>
-                    </div>
-                </Form>
+                            />
+                            <AntdTextField
+                                name="pageName"
+                                type="text"
+                                placeholder={'Page'}
+                                label={'Page'}
+                                disabled={true}
+                                errorMsg={errors?.pageName?.message}
+                                validateStatus={errors?.pageName ? 'error' : ''}
+                                // prefix={<EditOutlined />}
+                                control={control}
+                            />
+                            <Button
+                                className="submit-btn"
+                                htmlType="submit"
+                                type="primary"
+                                icon={<SendOutlined />}
+                                loading={isSubmitting}>
+                                {'fetch'}
+                            </Button>
+                        </div>
+                    </Form>
+                </div>
+                {/* <div className="col">
+                    <Form form={form2} layout="vertical" onFinish={handleSubmit(getInstagramDetails)} >
+                        <div className="form-field-wrapper">
+                            <AntdTextField
+                                name="instagramUrl"
+                                type="text"
+                                placeholder={'instagram url'}
+                                label={'pageUrl'}
+                                errorMsg={errors?.name?.message}
+                                validateStatus={errors?.name ? 'error' : ''}
+                                prefix={<EditOutlined />}
+                                control={control}
+
+                            />
+                            <AntdTextField
+                                name="instagramName"
+                                type="text"
+                                placeholder={'Page'}
+                                label={'Page'}
+                                disabled={true}
+                                errorMsg={errors?.pageName?.message}
+                                validateStatus={errors?.pageName ? 'error' : ''}
+                                // prefix={<EditOutlined />}
+                                control={control}
+                            />
+                            <Button
+                                className="submit-btn"
+                                htmlType="submit"
+                                type="primary"
+                                icon={<SendOutlined />}
+                                loading={isSubmitting}>
+                                {'fetch'}
+                            </Button>
+                        </div>
+                    </Form>
+
+                </div> */}
             </div>
-            <div className="row" style={{'justify-content': 'center'}}>
-            ---------------------------------------------- Ad creative ----------------------------------------------
+            <div className="row" style={{ 'justify-content': 'center' }}>
+                ---------------------------------------------- Ad creative ----------------------------------------------
             </div>
             <div className="row">
                 {/* upload video */}
 
+                <div className="row">
 
 
-                <div className="col">
-                    {/* <p>select video</p> */}
-                    <Upload {...props}>
-                        <Button icon={<UploadOutlined />}>Select video</Button>
-                    </Upload>
+
+                    <div className="col">
+                        {/* <p>select video</p> */}
+                        <Upload {...props}>
+                            <Button icon={<UploadOutlined />}>Select video</Button>
+                        </Upload>
+                    </div>
+                    <div className="col">
+                        {/* <p>select thumbnail</p> */}
+                        <Upload {...thumbnailProps}>
+                            <Button icon={<UploadOutlined />}>Select thumbnail</Button>
+                        </Upload>
+                    </div>
                 </div>
-                <div className="col">
-                    {/* <p>select thumbnail</p> */}
-                    <Upload {...thumbnailProps}>
-                        <Button icon={<UploadOutlined />}>Select thumbnail</Button>
-                    </Upload>
+                <div className="row" style={{ marginTop: '5px',marginLeft:'2px' }}>
+                    <Input
+                        name="headLine"
+                        type="text"
+                        size="large"
+                        placeholder={'HeadLine'}
+                        label={'titile'}
+                        onChange={(e) => setAdCreativeBody(prev => ({ ...prev, [e.target.name]: e.target.value }))}
+
+                    />
                 </div>
+                <div className="row" style={{ marginTop: '5px',marginLeft:'2px' }}>
+                    <Input
+                        name="primaryText"
+                        type="text"
+                        size="large"
+                        placeholder={'primary text'}
+                        label={'primary'}
+                        onChange={function (e) { setAdCreativeBody(prev => ({ ...prev, [e.target.name]: e.target.value })) }}
+
+                    />
+                </div>
+                <div className="row" style={{ marginTop: '5px',marginLeft:'2px' }}>
+                    <Input
+                        name="destination"
+                        type="text"
+                        placeholder={'enter url of target'}
+                        label={'primary'}
+                        size="large"
+                        onChange={function (e) { setAdCreativeBody(prev => ({ ...prev, [e.target.name]: e.target.value })) }}
+
+                    />
+                </div>
+
                 <div className="row">
                     <div className="col">
                         <Button
@@ -266,56 +362,60 @@ const NewAddModal = ({ adsetsId,setModalOpened }) => {
                 </div>
             </div>
 
-            <div className="row" style={{'justify-content': 'center'}}>
-            ---------------------------------------------- Ad creation ----------------------------------------------
+            <div className="row" style={{ 'justify-content': 'center' }}>
+                ---------------------------------------------- Ad creation ----------------------------------------------
             </div>
             {/* <Upload customRequest={handleUpload} >
                 <Button>Select file</Button>
             </Upload> */}
 
-            <div className="row" style={{margin:'5px'}}>
+            <div className="row" style={{ margin: '5px' }}>
                 <Input
                     name="name"
                     type="text"
+                    size="large"
                     placeholder={'add name'}
                     label={'name'}
-                    onChange={(e) => setAddBody(prev => ({...prev, [e.target.name]:e.target.value})) }
+                    onChange={(e) => setAddBody(prev => ({ ...prev, [e.target.name]: e.target.value }))}
 
                 />
             </div>
-            <div className="row" style={{margin:'5px'}}>
+            <div className="row" style={{ margin: '5px' }}>
                 <Input
-                    name="headline"
+                    name="pixelId"
                     type="text"
-                    placeholder={'HeadLine'}
-                    label={'titile'}
-                    onChange={(e) => setAddBody(prev => ({...prev, [e.target.name]:e.target.value})) }
-
-                />
-            </div>
-            <div  className="row" style={{margin:'5px'}}>
-                <Input
-                    name="primary"
-                    type="text"
-                    placeholder={'primary text'}
+                    size="large"
+                    placeholder={'enter pixel id'}
                     label={'primary'}
-                    onChange={function(e) {  console.log({e});setAddBody(prev => ({...prev, [e.target.name]:e.target.value})) }}
+                    onChange={function (e) { setAddBody(prev => ({ ...prev, [e.target.name]: e.target.value })) }}
 
                 />
             </div>
+            <div className="row" style={{ margin: '5px' }}>
+                <Input
+                    name="appEvents"
+                    type="text"
+                    size="large"
+                    placeholder={'enter app id'}
+                    label={'primary'}
+                    onChange={function (e) { setAddBody(prev => ({ ...prev, [e.target.name]: e.target.value })) }}
+
+                />
+            </div>
+
             <div className="row">
-                    <div className="col">
-                        <Button
-                            type="primary"
-                            onClick={createAdHandler}
-                            // disabled={!file}
-                            style={{ marginTop: 16 }}
-                        >
-                            create ad
-                        </Button>
-                    </div>
+                <div className="col">
+                    <Button
+                        type="primary"
+                        onClick={createAdHandler}
+                        // disabled={!file}
+                        style={{ marginTop: 16 }}
+                    >
+                        create ad
+                    </Button>
                 </div>
-        </div>
+            </div>
+        </div >
     )
 }
 

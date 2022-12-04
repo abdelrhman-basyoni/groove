@@ -9,11 +9,11 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 
 
-export function displayError({title, message}) {
+export function displayError({ title, message }) {
 
   Store.addNotification({
     title: title,
-    message:  message,
+    message: message,
     type: 'danger',
     insert: 'top',
     container: 'top-right',
@@ -27,11 +27,11 @@ export function displayError({title, message}) {
   });
 };
 
-export function displaySuccess({title,message}) {
+export function displaySuccess({ title, message }) {
 
   Store.addNotification({
     title: title,
-    message: message ,
+    message: message,
     type: 'success',
     insert: 'top',
     container: 'top-right',
@@ -49,52 +49,53 @@ export function displaySuccess({title,message}) {
  * in real enviroment the access token account id  should be hidden in the backend server and
  * this is for demonstration purposes only
  */
-export const convertRate = 25; // this conversion rate to handle Egp to dollar , set it to 1 if u want it to be according to your add acount currency 
-const access_token = 'EAASOreMwe2wBAB6i9NXQRsOmPNCjQldWL8eS3IPKGxQWhWPuQ9Xcc8A0inztWhNjOHyOddZAjr3rjEoUr2vYL5vQFHOLJ3gACthgk478lZCY8qKZBUlaSxG1LGJxqTKR64y3aobqVg3hKrfkKlZBSgXh3dsgFnH5eX16G75boKni9EyT1zfrwHIhXzF6ZClfZCZACKB21yfo57ZArVVvtbDViLK8EdsStJRrOpZArdI0uJtUX0rVOdiZA8'; //add the account token
-// const addAccountId = 'accountId' // addd ur account id
-// const addAccount = `act_${addAccountId}`;  // add accoun will be like <act_${accountId}>
-const app_secret = 'b6886e70a4a828673f2249d1973a7f4f';
-const app_id = '1282777398934380';
-const addAccount = `act_362100131`; 
+/** fill these values */
+export const convertRate = 1; // this conversion rate to handle Egp to dollar , set it to 1 if u want it to be according to your add acount currency 
+const access_token = ''; //add the account token
+const page_access_token = ''
+const app_secret = '';
+const app_id = '';
+const addAccount = ``;
+/** end of values to be filled  */
 const fbUrl = 'https://graph.facebook.com/v15.0'
 export async function postToFacebook(path, body, config) {
   try {
     const response = await axios
-    .create({
-      baseURL: fbUrl
-    })
-    .post(path, body, config);
+      .create({
+        baseURL: fbUrl
+      })
+      .post(path, body, config);
     // console.log(response)
     return response.data
-    
+
   } catch (error) {
-    console.log({error})
+    console.log({ error })
     const err = error?.response?.data?.error
     const title = err?.error_user_title || 'Error'
     const message = err?.error_user_msg || err?.message || 'something went wrong'
 
-    displayError({title, message})
+    displayError({ title, message })
     return null
   }
- 
+
 }
 export async function getFromFacebook(path, config) {
   try {
     const response = await axios
-    .create({
-      baseURL: fbUrl
-    })
-    .get(path, config);
+      .create({
+        baseURL: fbUrl
+      })
+      .get(path, config);
     // console.log(response)
     return response.data
-    
+
   } catch (error) {
-    console.log({error})
+    console.log({ error })
     const err = error?.response?.data?.error
     const title = err?.error_user_title || 'Error'
     const message = err?.error_user_msg || err?.message || 'something went wrong'
 
-    displayError({title, message})
+    displayError({ title, message })
     return null
   }
 
@@ -105,10 +106,10 @@ export async function deleteFromFacebook(path, config) {
       baseURL: fbUrl
     })
     .delete(path, config);
-    // console.log(response)
-    return response.data
+  // console.log(response)
+  return response.data
 }
-export async function createCampaign(campaginName, objective,type,limit) {
+export async function createCampaign(campaginName, objective, type, limit) {
   try {
     const data = await postToFacebook(`/${addAccount}/campaigns`, {
 
@@ -117,8 +118,8 @@ export async function createCampaign(campaginName, objective,type,limit) {
         name: campaginName || "test",
         objective: "LINK_CLICKS" || "LINK_CLICKS",
         status: "PAUSED",
-        buying_type:type,
-        spend_cap:35000 *convertRate, // in cents
+        buying_type: type,
+        spend_cap: 35000 * convertRate, // in cents
         special_ad_categories: "[]",
         access_token: access_token,
       }
@@ -155,7 +156,7 @@ export async function getCampaigns() {
           "PAUSED"
         ],
         fields: "name,objective",
-        limit:100,
+        limit: 100,
         access_token: access_token,
       }
     })
@@ -178,7 +179,7 @@ export async function getCampaignsAdSets(campgainId) {
           "PAUSED"
         ],
         fields: "name,start_time,end_time,daily_budget,lifetime_budget",
-        limit:100,
+        limit: 100,
         access_token: access_token,
       }
     })
@@ -214,7 +215,7 @@ export async function getAdSetsAds(adSetId) {
           "PREAPPROVED"
         ],
         fields: "name,configured_status,effective_status,creative",
-        limit:100,
+        limit: 100,
         access_token: access_token,
       }
     })
@@ -226,24 +227,24 @@ export async function getAdSetsAds(adSetId) {
 
 }
 
-export async function createAdsets({campgainId,name,optimizationGoal,dailyBudget,startTime,Traffic,targeting}) {
-  console.log({targeting})
+export async function createAdsets({ campgainId, name, optimizationGoal, dailyBudget, startTime, Traffic, targeting }) {
+  console.log({ targeting })
   try {
     const data = await postToFacebook(`/${addAccount}/adsets`, {
 
     }, {
       params: {
-        name: name ,
-        billing_event:'IMPRESSIONS',
-        campaign_id:campgainId,
+        name: name,
+        billing_event: 'IMPRESSIONS',
+        campaign_id: campgainId,
         access_token: access_token,
-        status:'PAUSED',
-        Traffic:Traffic || 'Website',
-        bid_amount:2,
-        end_time:0,
-        start_time:startTime, // utc unix timestamp
-        optimization_goal:optimizationGoal || "LINK_CLICKS",
-        daily_budget:dailyBudget* 100 * convertRate || 300 * convertRate, // cents,
+        status: 'PAUSED',
+        Traffic: Traffic || 'Website',
+        bid_amount: 2,
+        end_time: 0,
+        start_time: startTime, // utc unix timestamp
+        optimization_goal: optimizationGoal || "LINK_CLICKS",
+        daily_budget: dailyBudget * 100 * convertRate || 300 * convertRate, // cents,
         targeting
       }
     })
@@ -262,8 +263,8 @@ export async function getTargeting(search) {
 
     const data = await getFromFacebook(`/search`, {
       params: {
-        q: search ||'*',
-        type:'adinterest',
+        q: search || '*',
+        type: 'adinterest',
         access_token: access_token,
       }
     })
@@ -281,8 +282,8 @@ export async function getLocations(search) {
     const data = await getFromFacebook(`/search`, {
       params: {
         q: search,
-        location_types:["country","city"],
-        type: 'adgeolocation' ,
+        location_types: ["country", "city"],
+        type: 'adgeolocation',
         access_token: access_token,
       }
     })
@@ -300,7 +301,7 @@ export async function getLanguages(search) {
     const data = await getFromFacebook(`/search`, {
       params: {
         q: search,
-        type: 'adlocale' ,
+        type: 'adlocale',
         access_token: access_token,
       }
     })
@@ -312,20 +313,40 @@ export async function getLanguages(search) {
 
 }
 
-export async function getPageID(url){
+export async function getPageID(url) {
   try {
 
 
     const data = await getFromFacebook(``, {
       params: {
-        id:url,
+        id: url,
         // type:'adinterest',
         access_token: access_token,
       }
     })
-    console.log({data})
+    console.log({ data })
     return data;
-  
+
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+
+}
+export async function getInstagramID(pageId) {
+  try {
+
+
+    const data = await getFromFacebook(`/${pageId}/instagram_accounts`, {
+      params: {
+        fields: "id,name",
+        // type:'adinterest',
+        access_token: page_access_token,
+      }
+    })
+    console.log({ data })
+    return data;
+
   } catch (error) {
     console.log(error)
     return null
@@ -334,7 +355,7 @@ export async function getPageID(url){
 }
 
 
-export async function uploadVideo({path,formData}){
+export async function uploadVideo({ path, formData }) {
   try {
     const response = await axios.post(path, formData, {
       headers: {
@@ -349,12 +370,12 @@ export async function uploadVideo({path,formData}){
 }
 
 
-export async function uploadToFB(pageId,file_url){
+export async function uploadToFB(pageId, file_url) {
   try {
-    const response = await postToFacebook(`/${addAccount}/advideos`,{},{
-      params:{
+    const response = await postToFacebook(`/${addAccount}/advideos`, {}, {
+      params: {
         file_url,
-        name:"test",
+        name: "test",
         access_token: access_token,
 
       }
@@ -366,28 +387,47 @@ export async function uploadToFB(pageId,file_url){
   }
 }
 
-export async function createAdCreative({pageId,videoId,adCreativeName, link, message,imageUrl}){
+export async function createAdCreative({ pageId, videoId,adCreativeName, destination, primaryText,headLine, imageUrl }) {
   try {
-    const response = await postToFacebook(`/${addAccount}/adcreatives`,{},{
-      params:{
-        name:adCreativeName,
-        object_story_spec:{
-          video_data:{
-            video_id:videoId,
-            image_url:imageUrl
+    const params = {
+      name: adCreativeName,
+      object_story_spec: {
+        video_data: {
+          video_id: videoId,
+          image_url: imageUrl,
+          title:headLine, //this is the headline
+          message:primaryText, // this is the primart text 
+          // description:'description2',
+          call_to_action: {
+            type: "LISTEN_NOW",
+            value: {
+              link: destination,
+              // link_caption: 'caption',
+              // link_description: 'desc',
+            }
           },
-          link_data:{
-            link:link,
-            image_url:imageUrl,
-            message:message
-          },  
-          video_id:videoId,
-          page_id:pageId,
+
+
+
+
         },
+        // link_data:{
+        //   link:link,
+        //   image_url:imageUrl,
 
-        access_token: access_token,
+        //   message:message,
+        //   link_description:"headline text ad creative link data name"
+        // },  
+        video_id: videoId,
+        page_id: pageId,
+      },
 
-      }
+      access_token: access_token,
+
+    }
+
+    const response = await postToFacebook(`/${addAccount}/adcreatives`, {}, {
+      params: params
     });
     return response;
   } catch (error) {
@@ -395,22 +435,31 @@ export async function createAdCreative({pageId,videoId,adCreativeName, link, mes
     return null
   }
 }
-export async function createAd({pageId,addSetId,creativeId,adName}){
+export async function createAd({ pageId, addSetId,pixelId,appEvents, creativeId, adName }) {
   try {
-    const response = await postToFacebook(`/${addAccount}/ads`,{},{
-      params:{
-        name:adName,
-        adset_id:addSetId,
-        creative:{
-          creative_id:creativeId
-        },
-        status:"PAUSED",
-        page_id:pageId,
-        access_token: access_token,
+    const params = {
+      name: adName,
+      adset_id: addSetId,
+      creative: {
+        creative_id: creativeId
+      },
+      status: "PAUSED",
+      page_id: pageId,
+      title: "title",
+      description: "desc",
+      access_token: access_token,
 
-      }
+    }
+    const trackingSpecs = [];
+    pixelId ? trackingSpecs.push({'action.type':'offsite_conversion','fb_pixel':pixelId}) : null;
+    appEvents ? trackingSpecs.push({'action.type':'app_custom_event','application':appEvents}) : null;
+    if (pixelId || appEvents){
+      params['tracking_specs'] = trackingSpecs
+    }
+    const response = await postToFacebook(`/${addAccount}/ads`, {}, {
+      params: params
     });
-    return response.data;
+    return response;
   } catch (error) {
     console.log(error)
     return null
